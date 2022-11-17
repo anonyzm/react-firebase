@@ -2,11 +2,10 @@ import logo from './logo.svg';
 import './App.css';
 import Notification from "./Notification";
 
-Notification();
-
 function App() {
   return (
     <div className="App">
+      <Notification />
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>
