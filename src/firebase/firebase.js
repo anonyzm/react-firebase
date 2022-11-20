@@ -20,7 +20,7 @@ const messaging = getMessaging(app);
 
 export const requestForToken = () => {
     return getToken(messaging, {vapidKey: 'BKIeMKFxOLnJjDRrdPsTJET2OmNpCH7iKjqdqrubLjI0Vtl6g3O7tPHTzH61i1Cwbss-4o1CUy_SRJFM53u5Q0k'})
-        .then((currentToken) => {
+        .then((currentToken) => new Promise((resolve) => {
             if (currentToken) {
                 console.log('current token for client: ', currentToken);
                 // Perform any other neccessary action with the token
@@ -28,7 +28,8 @@ export const requestForToken = () => {
                 // Show permission request UI
                 console.log('No registration token available. Request permission to generate one.');
             }
-        })
+            resolve(currentToken);
+        }))
         .catch((err) => {
             console.log('An error occurred while retrieving token. ', err);
         });

@@ -1,22 +1,41 @@
 import logo from './logo.svg';
 import './App.css';
 import Notification from "./Notification";
+import ls from 'local-storage'
+import {flocktoryInit, flocktoryPushAttach} from "./flocktory/flocktory";
 
-if ("serviceWorker" in navigator) {
-    navigator.serviceWorker
-        .register("./firebase-messaging-sw.js")
-        .then(function (registration) {
-            console.log("Registration successful, scope is:", registration.scope);
-        })
-        .catch(function (err) {
-            console.log("Service worker registration failed, error:", err);
+let flocktorySessionId = ls.get('flocktorySessionId');
+const tokenReceived = (token) => {
+    ls.set('notificationToken', token);
+    console.log('Token saved to LocalStorage');
+
+    if (!flocktorySessionId) {
+        flocktoryInit().then((data) => {
+            console.log('flocktoryInit');
+            console.log(data);
+
+            if (!data.hasOwnProperty("site-session-id")) {
+                console.log('`site-session-id` is empty')
+            }
+            flocktorySessionId = data["site-session-id"];
+            ls.set('flocktorySessionId', flocktorySessionId);
+
+            flocktoryPushAttach(token, flocktorySessionId).then((response) => {
+                console.log('flocktoryPushAttach');
+                console.log(response)
+            });
         });
-}
+    }
+};
+
+const notificationToken = () => {
+    return ls.get('notificationToken')
+};
 
 function App() {
     return (
         <div className="App">
-            <Notification/>
+            <Notification token={notificationToken()} onTokenReceived={tokenReceived}/>
             <header className="App-header">
                 <img src={logo} className="App-logo" alt="logo"/>
                 <p>

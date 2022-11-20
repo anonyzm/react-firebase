@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import toast, { Toaster } from 'react-hot-toast';
-import { requestForToken, onMessageListener } from './firebase';
+import { requestForToken, onMessageListener } from './firebase/firebase';
 
-const Notification = () => {
+const Notification = ({token, onTokenReceived}) => {
     const [notification, setNotification] = useState({title: '', body: ''});
     const notify = () =>  toast(<ToastDisplay/>);
     function ToastDisplay() {
@@ -20,12 +20,15 @@ const Notification = () => {
         }
     }, [notification])
 
-    requestForToken();
+    // requesting for token if token is not received
+    if (!token) {
+        requestForToken().then((token) => {
+            onTokenReceived(token);
+        });
+    }
 
     onMessageListener()
         .then((payload) => {
-            console.log('onMessageListener');
-            console.log(payload);
             setNotification({title: payload?.data?.title, body: payload?.data?.body});
         })
         .catch((err) => console.log('failed: ', err));
